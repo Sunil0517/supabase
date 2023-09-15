@@ -73,15 +73,11 @@ model tweet{
   user    User     @relation(fields: [userId], references: [id])
   tweet_hashtag tweet_hashtag[]
   
+  //self joins 
   retweetId Int? @unique
   retweet tweet? @relation("Retweets", fields: [retweetId], references: [id])
   tweet tweet? @relation("Retweets")
 }
 
-model Users {
-  id         Int     @id @default(autoincrement())
-  name       String?
-  followedBy Users[]  @relation("UserFollows")
-  following  Users[]  @relation("UserFollows")
-}
+
 

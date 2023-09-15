@@ -1,7 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 
+
 const server = express();
+server.use(cors())
 server.use(express.json());
 
 const prisma = new PrismaClient();
@@ -34,7 +37,7 @@ server.get('/users', async (req, res) => {
   }
 })
 
-//get data by id
+//get user data by id
 server.get('/users/:id', async (req, res) => {
   try{
     const user = await prisma.user.findUnique({
@@ -87,6 +90,62 @@ server.delete('/users/:id', async (req, res) => {
   }
 })
 
-server.listen(3000, () => {
-  console.log('Server started on port 3000');
+//create post in tweets table from user id
+server.post('/tweet/:id', async (req, res) => {
+  try{
+    const id = req.body.userId;
+    //find id in users table
+    const user = await prisma.User.findUnique({
+      where: {
+        id: id,
+      }
+    });
+    if(!user){
+      res.status(404).json({ error: 'User does not exist.' });
+    }
+    const newTweet = await prisma.tweet.create({
+      data: {
+        userId: req.params.id,
+        content: req.body.content,
+        location: req.body.location,
+      },
+    });
+    res.status(201).json(newTweet);
+  }
+  catch(error){
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to create tweet.' });
+  }
+})
+
+//get all tweets
+server.get('/tweets', async (req, res) => {
+  try {
+    const tweets = await prisma.tweet.findMany();
+    res.status(200).json(tweets);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to retrieve tweets.' });
+  }
+})
+
+//get tweet by id
+server.get('/tweets/:id', async (req, res) => {
+  try{
+    const tweet = await prisma.tweet.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+    });
+    res.status(200).json(tweet);
+  }
+  catch(error){
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to retrieve tweet.' });
+  }
+})
+
+
+server.listen(3003, () => {
+  console.log('Server started on port 3003');
 });
