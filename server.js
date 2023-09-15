@@ -146,6 +146,6 @@ server.get('/tweets/:id', async (req, res) => {
 })
 
 
-server.listen(3003, () => {
-  console.log('Server started on port 3003');
+server.listen(3004, () => {
+  console.log('Server started on port 3004');
 });
